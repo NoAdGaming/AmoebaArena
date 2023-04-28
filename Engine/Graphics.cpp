@@ -316,6 +316,79 @@ void Graphics::PutPixel( int x,int y,Color c )
 	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
 }
 
+// Special graphics drawing functions
+void Graphics::DrawPixelSafe(int x, int y, Color color)
+{
+	if (!(x < 0 || y < 0 || x >= Graphics:: ScreenWidth || y >= Graphics::ScreenHeight)) {
+		pSysBuffer[Graphics::ScreenWidth * y + x] = color;
+	}
+}
+
+void Graphics::DrawVLine(int x, int y1, int y2, Color color)
+{
+	for (int y = y1; y <= y2; y++) {
+		DrawPixelSafe(x, y, color);
+	}
+}
+
+void Graphics::DrawHLine(int x1, int x2, int y, Color color)
+{
+	for (int x = x1; x <= x2; x++) {
+		DrawPixelSafe(x, y, color);
+	}
+}
+
+void Graphics::DrawRect(int x1, int y1, int x2, int y2, Color color, bool filled)
+{
+	for (int x = x1; x <= x2; x++) {
+		for (int y = y1; y <= y2; y++) {
+			if (filled || x == x1 || y == y1 || x == x2 || y == y2) {
+				this->DrawPixelSafe(x, y, color);
+			}
+		}
+	}
+}
+static void DrawCirclePixels(Graphics& g, int center_x, int center_y, int outside_x, int outside_y, Color color, bool filled)
+{
+	if (filled) {
+		g.DrawHLine(center_x - outside_x, center_x + outside_x, center_y + outside_y, color);
+		g.DrawHLine(center_x - outside_x, center_x + outside_x, center_y - outside_y, color);
+		g.DrawHLine(center_x - outside_y, center_x + outside_y, center_y + outside_x, color);
+		g.DrawHLine(center_x - outside_y, center_x + outside_y, center_y - outside_x, color);
+	}
+	else {
+		g.DrawPixelSafe(center_x + outside_x, center_y + outside_y, color);
+		g.DrawPixelSafe(center_x - outside_x, center_y + outside_y, color);
+		g.DrawPixelSafe(center_x + outside_x, center_y - outside_y, color);
+		g.DrawPixelSafe(center_x - outside_x, center_y - outside_y, color);
+		g.DrawPixelSafe(center_x + outside_y, center_y + outside_x, color);
+		g.DrawPixelSafe(center_x - outside_y, center_y + outside_x, color);
+		g.DrawPixelSafe(center_x + outside_y, center_y - outside_x, color);
+		g.DrawPixelSafe(center_x - outside_y, center_y - outside_x, color);
+	}
+}
+void Graphics::DrawCircle(int center_x, int center_y, int radius, Color color, bool filled)
+{
+	int x = 0;
+	int y = radius;
+	int d = 1 - radius;
+
+	DrawCirclePixels(*this, center_x, center_y, x, y, color, filled);
+
+	while (x < y) {
+		if (d < 0) {
+			d = d + 2 * x + 3;
+		}
+		else {
+			d = d + 2 * (x - y) + 5;
+			y = y - 1;
+		}
+		x++;
+		DrawCirclePixels(*this, center_x, center_y, x, y, color, filled);
+	}
+}
+
+
 
 //////////////////////////////////////////////////
 //           Graphics Exception

@@ -57,6 +57,12 @@ public:
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
 	}
 	void PutPixel( int x,int y,Color c );
+	// Special graphics drawing functions
+	void DrawPixelSafe(int x, int y, Color color);
+	void DrawVLine(int x, int y1, int y2, Color color);
+	void DrawHLine(int x1, int x2, int y, Color color);
+	void DrawRect(int x1, int y1, int x2, int y2, Color color, bool filled);
+	void DrawCircle(int center_x, int center_y, int radius, Color color, bool filled);
 	~Graphics();
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
@@ -73,6 +79,6 @@ private:
 	D3D11_MAPPED_SUBRESOURCE							mappedSysBufferTexture;
 	Color*                                              pSysBuffer = nullptr;
 public:
-	static constexpr int ScreenWidth = 800;
-	static constexpr int ScreenHeight = 600;
+	static constexpr int ScreenWidth = 1920;
+	static constexpr int ScreenHeight = 1080;
 };

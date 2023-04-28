@@ -23,6 +23,15 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "GamePad.h"
+
+#define PLAYER_STARTING_RADIUS 50.0
+#define FOOD_STARTING_RADIUS 10.0
+#define MAXIMUM_RADIUS 500.0
+#define GRID_SIZE 100.0
+
+#define PLAYER_COLOR Colors::Green
+#define GRID_COLOR Colors::Gray
 
 class Game
 {
@@ -37,10 +46,31 @@ private:
 	/********************************/
 	/*  User Functions              */
 	/********************************/
+	void DrawGrid();
+	void DrawFood();
+	void DrawPlayer();
 private:
 	MainWindow& wnd;
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
 	/********************************/
+
+	// The controller variables
+	std::unique_ptr<DirectX::GamePad> gamepad;
+
+	// Screen coordinates for center of window
+	const int center_x = Graphics::ScreenWidth / 2;
+	const int center_y = Graphics::ScreenHeight / 2;
+
+	// Game coordinates for player
+	double player_x = 0.0;
+	double player_y = 0.0;
+
+	// Player variables
+	double player_radius = PLAYER_STARTING_RADIUS;
+
+	// How far out the camera should draw (1.0 = regular scale, 2.0 = half scale, etc)
+	double zoom_out_factor = 1.0;
+
 };

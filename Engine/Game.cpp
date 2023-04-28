@@ -21,11 +21,14 @@
 #include "MainWindow.h"
 #include "Game.h"
 
+#include <cmath>
+
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd )
 {
+	gamepad = std::make_unique<DirectX::GamePad>();
 }
 
 void Game::Go()
@@ -38,8 +41,51 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	auto state = gamepad->GetState(0);
+
+	player_x -= state.thumbSticks.leftX * zoom_out_factor;
+	player_y += state.thumbSticks.leftY * zoom_out_factor;
+
+	if (state.IsRightTriggerPressed() && player_radius < 500.0f) {
+		player_radius *= 1.01;
+		zoom_out_factor *= 1.01;
+	}
+
+	if (state.IsLeftTriggerPressed() && player_radius > 10.0f) {
+		player_radius *= 0.99;
+		zoom_out_factor *= 0.99;
+	}
+
+}
+
+void Game::DrawGrid()
+{
+	int grid_scale = int(GRID_SIZE / zoom_out_factor);
+
+	// Draw vertical lines
+	for (int x = fmod(player_x, GRID_SIZE) * zoom_out_factor; x < Graphics::ScreenWidth; x += grid_scale) {
+		gfx.DrawVLine(x, 0, Graphics::ScreenHeight - 1, GRID_COLOR);
+	}
+
+	// Draw horizontal lines
+	for (int y = fmod(player_y, GRID_SIZE) * zoom_out_factor; y < Graphics::ScreenHeight; y += grid_scale) {
+		gfx.DrawHLine(0, Graphics::ScreenWidth - 1, y, GRID_COLOR);
+	}
+}
+
+void Game::DrawFood()
+{
+
+}
+
+void Game::DrawPlayer()
+{
+	gfx.DrawCircle(center_x, center_y, int(player_radius / zoom_out_factor), PLAYER_COLOR, true);
 }
 
 void Game::ComposeFrame()
 {
+	DrawGrid();
+	DrawFood();
+	DrawPlayer();
 }
